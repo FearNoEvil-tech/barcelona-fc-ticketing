@@ -1,3 +1,4 @@
+
 <?php
 /*
  * init.php: shared setup that every page loads first.
@@ -5,9 +6,10 @@
  * - Starts the session that remembers who is signed in (demo only).
  * - Provides helper functions and the sample data the pages display.
  *
- * In the final project, the $users and $matches arrays below will be replaced
- * by SELECT queries against the database.
+ * Midterm: USER and MATCH records use PHP session storage.
+ * Final project: Replace session storage with database operations.
  */
+
 date_default_timezone_set("America/Denver");
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -44,24 +46,78 @@ function format_time(string $hm): string
 /* Read a positive whole-number ID from the URL, or return null. */
 function id_from_url(string $name): ?int
 {
-    $id = filter_input(INPUT_GET, $name, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]);
+    $id = filter_input(
+        INPUT_GET,
+        $name,
+        FILTER_VALIDATE_INT,
+        ["options" => ["min_range" => 1]]
+    );
+
     return $id ?: null;
 }
 
-/* ---- Sample data (USER and MATCH tables from the ERD) ---- */
+/* ---- Sample USER data from the ERD ---- */
+
 $users = [
-    1 => ["username" => "sspasovski", "full_name" => "Stefan Spasovski", "email" => "stefan@gmail.com", "contact" => "248-867-9309"],
-    2 => ["username" => "cosmond", "full_name" => "Cody Osmond", "email" => "cody@gmail.com", "contact" => "369-753-1478"],
-    3 => ["username" => "mahmed", "full_name" => "Mandeqa Ahmed", "email" => "mandeqa@gmail.com", "contact" => "864-259-8741"],
+    1 => [
+        "username" => "sspasovski",
+        "full_name" => "Stefan Spasovski",
+        "email" => "stefan@gmail.com",
+        "contact" => "248-867-9309"
+    ],
+    2 => [
+        "username" => "cosmond",
+        "full_name" => "Cody Osmond",
+        "email" => "cody@gmail.com",
+        "contact" => "369-753-1478"
+    ],
+    3 => [
+        "username" => "mahmed",
+        "full_name" => "Mandeqa Ahmed",
+        "email" => "mandeqa@gmail.com",
+        "contact" => "864-259-8741"
+    ],
 ];
+
+/* Store demo user records in the session so CRUD changes persist. */
+if (!isset($_SESSION["demo_users"])) {
+    $_SESSION["demo_users"] = $users;
+}
+
+$users = $_SESSION["demo_users"];
+
+/* ---- Sample MATCH data from the ERD ---- */
 
 $matches = [
-    1 => ["opponent" => "Real Madrid", "date" => "2026-11-13", "time" => "19:00", "type" => "League"],
-    2 => ["opponent" => "Sevilla", "date" => "2026-11-28", "time" => "21:00", "type" => "Cup"],
-    3 => ["opponent" => "Atletico Madrid", "date" => "2026-12-12", "time" => "16:15", "type" => "League"],
+    1 => [
+        "opponent" => "Real Madrid",
+        "date" => "2026-11-13",
+        "time" => "19:00",
+        "type" => "League"
+    ],
+    2 => [
+        "opponent" => "Sevilla",
+        "date" => "2026-11-28",
+        "time" => "21:00",
+        "type" => "Cup"
+    ],
+    3 => [
+        "opponent" => "Atletico Madrid",
+        "date" => "2026-12-12",
+        "time" => "16:15",
+        "type" => "League"
+    ],
 ];
 
+/* Store demo match records in the session so CRUD changes persist. */
+if (!isset($_SESSION["demo_matches"])) {
+    $_SESSION["demo_matches"] = $matches;
+}
+
+$matches = $_SESSION["demo_matches"];
+
+/* Match types allowed by the system. */
 $matchTypes = ["League", "Cup"];
 
-/* The account shown on My Account (the signed-in fan in this prototype). */
+/* The account shown on My Account (signed-in fan in this prototype). */
 $currentUserId = 1;

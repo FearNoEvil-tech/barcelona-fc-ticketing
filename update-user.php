@@ -11,9 +11,27 @@ $user = $userId !== null ? ($users[$userId] ?? null) : null;
 $returnTo = $fromAdmin ? "manage-users.php" : "my-account.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $user !== null) {
-    // Final project: validate the fields, check the username and email are not used
-    // by another account, and UPDATE the USER row.
-    redirect($returnTo . "?msg=" . ($fromAdmin ? "user_updated" : "account_updated"));
+    $fullName = trim($_POST["full_name"] ?? "");
+    $username = trim($_POST["username"] ?? "");
+    $email = trim($_POST["email"] ?? "");
+    $contact = trim($_POST["contact"] ?? "");
+
+    if (
+        $fullName === "" ||
+        $username === "" ||
+        !filter_var($email, FILTER_VALIDATE_EMAIL)
+    ) {
+        $error = "Please enter valid information in all required fields.";
+    } else {
+        $_SESSION["demo_users"][$userId] = [
+            "full_name" => $fullName,
+            "username" => $username,
+            "email" => $email,
+            "contact" => $contact
+        ];
+
+        redirect($returnTo . "?msg=" . ($fromAdmin ? "user_updated" : "account_updated"));
+    }
 }
 
 $pageTitle = "Update User Account";
@@ -23,6 +41,11 @@ require_once __DIR__ . "/includes/header.php";
 ?>
 <div class="fcb-panel fcb-form mx-auto p-4 p-md-5">
     <h1 class="h3 fw-bold text-center mb-4">Update User Account</h1>
+    <?php if (!empty($error)): ?>
+    <div class="alert alert-danger" role="alert">
+        <?= e($error) ?>
+    </div>
+<?php endif; ?>
 
     <?php if ($user === null): ?>
         <div class="alert alert-warning" role="alert">User not found. Choose an account from the list.</div>

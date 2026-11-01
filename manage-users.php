@@ -6,8 +6,28 @@
 require_once __DIR__ . "/includes/init.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? "") === "delete") {
-    // Final project: DELETE the USER row whose UserID is $_POST["user_id"].
-    redirect("manage-users.php?msg=user_deleted");   // "Return to WF04A with Updated List"
+
+    $deleteUserId = filter_input(
+        INPUT_POST,
+        "user_id",
+        FILTER_VALIDATE_INT,
+        ["options" => ["min_range" => 1]]
+    );
+
+    if ($deleteUserId === false || $deleteUserId === null ||
+        !isset($_SESSION["demo_users"][$deleteUserId])) {
+        redirect("manage-users.php");
+    }
+
+    // Midterm demonstration: User ID 1 has associated tickets/transactions.
+    if ($deleteUserId === 1) {
+        redirect("manage-users.php?msg=user_delete_blocked");
+    }
+
+    // Remove the selected user from the session-backed sample data.
+    unset($_SESSION["demo_users"][$deleteUserId]);
+
+    redirect("manage-users.php?msg=user_deleted");
 }
 
 $pageTitle = "Manage Users";
